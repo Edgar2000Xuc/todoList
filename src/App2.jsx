@@ -9,7 +9,7 @@ export function App2() {
       id: 1,
       task: 'Tarea 1',
       completed: false,
-      priority: 1,
+      priority: 1, // Prioridad de ejemplo, puedes ajustarla
     },
     // Otras tareas...
   ]);
@@ -20,6 +20,7 @@ export function App2() {
   const [showPending, setShowPending] = useState(false);
 
   const todoTaskRef = useRef();
+  const todoPriorityRef = useRef(); // Referencia al campo de prioridad
 
   useEffect(() => {
     const storedTodos = JSON.parse(localStorage.getItem('todoApp.todos'));
@@ -50,15 +51,17 @@ export function App2() {
   const handleTodoAdd = () => {
     const task = todoTaskRef.current.value;
     if (task === '') return;
+    const priority = parseInt(todoPriorityRef.current.value); // Obtener la prioridad del campo
     const newTodo = {
       id: todos.length + 1,
       task: task,
       completed: false,
-      priority: 5, // Por defecto, la prioridad es 5
+      priority: priority, // Usar la prioridad ingresada por el usuario
     };
     setTodos((prevTodos) => {
       return [...prevTodos, newTodo];
     });
+    todoTaskRef.current.value = ''; // Limpiar el campo de tarea después de agregar
   };
 
   const handleClearAll = () => {
@@ -83,23 +86,29 @@ export function App2() {
   return (
     <Fragment>
       <div>
-        <button onClick={() => setShowHighPriority(!showHighPriority || selectedTodos.length > 0)}>
-          Mayor Prioridad
-        </button>
-        <button onClick={() => setShowNoPriority(!showNoPriority)}>Sin Prioridad</button>
-        <button onClick={() => setShowPending(!showPending)}>Pendientes</button>
+        <input ref={todoTaskRef} type="text" placeholder="Nueva Tarea" />
+        <label>
+          Prioridad:
+          <select ref={todoPriorityRef}>
+            <option value="1">Alta</option>
+            <option value="2">Media</option>
+            <option value="3">Baja</option>
+          </select>
+        </label>
+        <button onClick={handleTodoAdd}>Agregar Tarea</button>
+        <button onClick={handleClearAll}>Borrar Tareas Completadas</button>
       </div>
-      <div className="filter-checkbox">
+      <div>
         <label>
           <input
             type="checkbox"
             checked={showHighPriority}
-            onChange={() => setShowHighPriority(!showHighPriority || selectedTodos.length > 0)}
+            onChange={() => setShowHighPriority(!showHighPriority)}
           />
           Mostrar tareas de mayor prioridad
         </label>
       </div>
-      <div className="filter-checkbox">
+      <div>
         <label>
           <input
             type="checkbox"
@@ -109,7 +118,7 @@ export function App2() {
           Mostrar tareas sin prioridad
         </label>
       </div>
-      <div className="filter-checkbox">
+      <div>
         <label>
           <input
             type="checkbox"
@@ -120,9 +129,6 @@ export function App2() {
         </label>
       </div>
       <TodoList todos={filteredTodos} toggleTodo={toggleTodo} />
-      <input ref={todoTaskRef} type="text" placeholder="Nueva Tarea" />
-      <button onClick={handleTodoAdd}>+</button>
-      <button onClick={handleClearAll}>-</button>
       <div>Te quedan {todos.filter((todo) => !todo.completed).length} tareas por terminar.</div>
       <div>
         {selectedTodos.length > 0 && (
